@@ -4,10 +4,11 @@ import { useTransactionStore } from '@/store/transactionStore';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { formatAmount } from '@/utils/format';
-import { ArrowRight, Package, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { ArrowRight, Package, CheckCircle2, Clock, AlertCircle, CreditCard } from 'lucide-react';
 import { TransactionStage } from '@/types';
 
 const stageIcons: Record<TransactionStage, any> = {
+  awaiting_payment: CreditCard,
   funds_secured: CheckCircle2,
   in_transit: Package,
   inspection: Clock,
@@ -17,6 +18,7 @@ const stageIcons: Record<TransactionStage, any> = {
 };
 
 const stageColors: Record<TransactionStage, string> = {
+  awaiting_payment: 'text-purple-600 bg-purple-50',
   funds_secured: 'text-green-600 bg-green-50',
   in_transit: 'text-blue-600 bg-blue-50',
   inspection: 'text-yellow-600 bg-yellow-50',

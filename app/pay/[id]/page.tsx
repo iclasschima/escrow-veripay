@@ -5,13 +5,13 @@ import { useTransactionStore } from '@/store/transactionStore';
 import { useState, useEffect } from 'react';
 import { getTransactionStatus, initializePayment, verifyPayment } from '@/utils/api';
 import Script from 'next/script';
-import { 
-  Shield, 
-  User, 
-  Phone, 
-  Mail, 
-  Star, 
-  CheckCircle2, 
+import {
+  Shield,
+  User,
+  Phone,
+  Mail,
+  Star,
+  CheckCircle2,
   TrendingUp,
   Lock,
   CreditCard,
@@ -61,15 +61,15 @@ export default function TrustLinkPage() {
       try {
         setLoading(true);
         const response = await getTransactionStatus(linkId);
-        
+
         if (response.success && response.data) {
           // Convert backend transaction to TrustLink format
           const transactionData = response.data;
-          
+
           // Allow payment for PENDING and AWAITING_PAYMENT statuses
           const allowedStatuses = ['PENDING', 'AWAITING_PAYMENT'];
           const isActive = allowedStatuses.includes(transactionData.status);
-          
+
           setTrustLink({
             id: linkId,
             itemName: transactionData.itemName,
@@ -77,7 +77,7 @@ export default function TrustLinkPage() {
             shippingCost: 0,
             inspectionPeriodHours: 48, // Default, can be updated from backend
             feeSplit: 'split',
-            sellerName: transactionData.seller?.firstName 
+            sellerName: transactionData.seller?.firstName
               ? `${transactionData.seller.firstName} ${transactionData.seller.lastName || ''}`.trim()
               : 'Seller',
             sellerPhone: transactionData.seller?.phone || '',
@@ -171,8 +171,8 @@ export default function TrustLinkPage() {
     trustLink.feeSplit === 'buyer'
       ? totalAmount + feeAmount
       : trustLink.feeSplit === 'seller'
-      ? totalAmount
-      : totalAmount + feeAmount / 2;
+        ? totalAmount
+        : totalAmount + feeAmount / 2;
 
   const handleProceed = async () => {
     if (!phone) {
@@ -257,33 +257,33 @@ export default function TrustLinkPage() {
               },
             ],
           },
-          callback: function(response: any) {
+          callback: function (response: any) {
             // Handle payment verification asynchronously
             (async () => {
               try {
                 const verifyResponse = await verifyPayment(response.reference);
                 if (verifyResponse.success && verifyResponse.data.status === 'success') {
                   // Create transaction in local store for backward compatibility
-    const transactionId = createTransaction({
-      trustLinkId: linkId,
-      itemName: trustLink.itemName,
-      price: trustLink.price,
-      shippingCost: trustLink.shippingCost,
-      totalAmount: finalAmount,
-      feeAmount,
-      feeSplit: trustLink.feeSplit,
-      inspectionPeriodHours: trustLink.inspectionPeriodHours,
-        buyerKYCLevel: 'none',
-      sellerKYCLevel: 'none',
-      buyerPhone: phone,
-      stage: 'funds_secured',
-      isDisputed: false,
-      evidence: [],
-      chatMessages: [],
-    });
+                  const transactionId = createTransaction({
+                    trustLinkId: linkId,
+                    itemName: trustLink.itemName,
+                    price: trustLink.price,
+                    shippingCost: trustLink.shippingCost,
+                    totalAmount: finalAmount,
+                    feeAmount,
+                    feeSplit: trustLink.feeSplit,
+                    inspectionPeriodHours: trustLink.inspectionPeriodHours,
+                    buyerKYCLevel: 'none',
+                    sellerKYCLevel: 'none',
+                    buyerPhone: phone,
+                    stage: 'funds_secured',
+                    isDisputed: false,
+                    evidence: [],
+                    chatMessages: [],
+                  });
 
-    useTrustLink(linkId, transactionId);
-      setPaymentSuccess(true);
+                  useTrustLink(linkId, transactionId);
+                  setPaymentSuccess(true);
                 } else {
                   alert('Payment verification failed. Please contact support with reference: ' + response.reference);
                   setProcessing(false);
@@ -295,7 +295,7 @@ export default function TrustLinkPage() {
               }
             })();
           },
-          onClose: function() {
+          onClose: function () {
             setProcessing(false);
             // Don't show alert on close - user might have completed payment
           },
@@ -344,20 +344,20 @@ export default function TrustLinkPage() {
 
   // Success state after payment
   if (paymentSuccess) {
-  return (
+    return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <header className="bg-white border-b border-gray-200">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-end">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-900">VeriPay</span>
                 <CheckCircle className="text-green-500" size={20} />
               </div>
             </div>
-        </div>
-      </header>
+          </div>
+        </header>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center mb-8">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="text-green-600" size={48} />
@@ -506,10 +506,10 @@ export default function TrustLinkPage() {
                     />
                   </div>
                 )}
-                
+
                 <div className="flex-1">
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">{trustLink.itemName}</h2>
-                  
+
                   {trustLink.description && (
                     <p className="text-sm text-gray-600 mb-4 leading-relaxed">
                       {trustLink.description}
@@ -522,7 +522,9 @@ export default function TrustLinkPage() {
                       <span>{trustLink.sellerName || 'Tiwa Adebayo'}</span>
                     </div>
                     {trustLink.sellerVerified !== false && (
-                      <CheckCircle2 className="text-green-500" size={14} title="Verified" />
+                      <span title="Verified">
+                        <CheckCircle2 className="text-green-500" size={14} />
+                      </span>
                     )}
                     {trustLink.sellerRating !== undefined && (
                       <div className="flex items-center gap-1">
@@ -533,13 +535,13 @@ export default function TrustLinkPage() {
                         {trustLink.sellerCompletedTransactions !== undefined && (
                           <span className="text-gray-500">
                             ({trustLink.sellerCompletedTransactions} deals)
-                  </span>
+                          </span>
                         )}
-                </div>
+                      </div>
                     )}
+                  </div>
                 </div>
-                </div>
-                </div>
+              </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
                 <div className="flex items-start gap-2">
@@ -553,44 +555,44 @@ export default function TrustLinkPage() {
 
             {/* Contact Information */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Contact Information
-                </h3>
-                <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Contact Information
+              </h3>
+              <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone Number <span className="text-red-500">*</span>
+                    Phone Number <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-purple-600"
-                  placeholder="+234 801 234 5678"
-                      required
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      We'll send payment confirmation to this number
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-purple-600"
-                      placeholder="your@email.com"
-                      required
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      We'll send payment receipt and updates to this email
-                    </p>
-                  </div>
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-purple-600"
+                    placeholder="+234 801 234 5678"
+                    required
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    We'll send payment confirmation to this number
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-purple-600"
+                    placeholder="your@email.com"
+                    required
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    We'll send payment receipt and updates to this email
+                  </p>
                 </div>
               </div>
+            </div>
 
           </div>
 

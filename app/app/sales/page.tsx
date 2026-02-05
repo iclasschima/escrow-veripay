@@ -5,7 +5,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { useTransactionStore } from '@/store/transactionStore';
 import { format } from 'date-fns';
 import { formatAmount } from '@/utils/format';
-import { 
+import {
   Package,
   CheckCircle2,
   Clock,
@@ -24,7 +24,8 @@ import {
   Share2,
   ExternalLink,
   Link as LinkIcon,
-  Eye
+  Eye,
+  CreditCard
 } from 'lucide-react';
 import Link from 'next/link';
 import { TransactionStage, TrustLink } from '@/types';
@@ -35,6 +36,7 @@ type FilterType = 'all' | 'payment-links' | 'awaiting-shipping' | 'funds-locked'
 const ITEMS_PER_PAGE = 10;
 
 const stageLabels: Record<TransactionStage, string> = {
+  awaiting_payment: 'Awaiting Payment',
   funds_secured: 'Awaiting Shipping',
   in_transit: 'In Transit',
   inspection: 'In Inspection',
@@ -44,6 +46,7 @@ const stageLabels: Record<TransactionStage, string> = {
 };
 
 const stageColors: Record<TransactionStage, string> = {
+  awaiting_payment: 'bg-purple-100 text-purple-700',
   funds_secured: 'bg-red-100 text-red-700',
   in_transit: 'bg-blue-100 text-blue-700',
   inspection: 'bg-yellow-100 text-yellow-700',
@@ -53,6 +56,7 @@ const stageColors: Record<TransactionStage, string> = {
 };
 
 const stageIcons: Record<TransactionStage, any> = {
+  awaiting_payment: CreditCard,
   funds_secured: Shield,
   in_transit: Truck,
   inspection: Clock,
@@ -61,7 +65,7 @@ const stageIcons: Record<TransactionStage, any> = {
   disputed: AlertCircle,
 };
 
-type UnifiedItem = 
+type UnifiedItem =
   | { type: 'payment-link'; data: TrustLink }
   | { type: 'transaction'; data: any };
 
@@ -75,7 +79,7 @@ export default function SalesPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const handleCopy = async (linkId: string) => {
-    const fullLink = typeof window !== 'undefined' 
+    const fullLink = typeof window !== 'undefined'
       ? `${window.location.origin}/pay/${linkId}`
       : `/pay/${linkId}`;
     await navigator.clipboard.writeText(fullLink);
@@ -84,7 +88,7 @@ export default function SalesPage() {
   };
 
   const handleShare = (linkId: string, platform: 'whatsapp' | 'instagram') => {
-    const fullLink = typeof window !== 'undefined' 
+    const fullLink = typeof window !== 'undefined'
       ? `${window.location.origin}/pay/${linkId}`
       : `/pay/${linkId}`;
     const message = encodeURIComponent(
@@ -125,14 +129,14 @@ export default function SalesPage() {
     if (filterType === 'payment-links') {
       filtered = filtered.filter(item => item.type === 'payment-link');
     } else if (filterType === 'awaiting-shipping') {
-      filtered = filtered.filter(item => 
-        item.type === 'transaction' && 
-        item.data.stage === 'funds_secured' && 
+      filtered = filtered.filter(item =>
+        item.type === 'transaction' &&
+        item.data.stage === 'funds_secured' &&
         !item.data.waybillNumber
       );
     } else if (filterType === 'funds-locked') {
-      filtered = filtered.filter(item => 
-        item.type === 'transaction' && 
+      filtered = filtered.filter(item =>
+        item.type === 'transaction' &&
         ['funds_secured', 'in_transit', 'inspection'].includes(item.data.stage)
       );
     } else if (filterType !== 'all') {
@@ -144,8 +148,8 @@ export default function SalesPage() {
         'disputed': 'disputed',
       };
       if (stageMap[filterType]) {
-        filtered = filtered.filter(item => 
-          item.type === 'transaction' && 
+        filtered = filtered.filter(item =>
+          item.type === 'transaction' &&
           item.data.stage === stageMap[filterType]
         );
       }
@@ -157,29 +161,29 @@ export default function SalesPage() {
       filtered = filtered.filter(item => {
         if (item.type === 'payment-link') {
           return item.data.itemName.toLowerCase().includes(query) ||
-                 item.data.id.toLowerCase().includes(query);
+            item.data.id.toLowerCase().includes(query);
         } else {
           return item.data.itemName.toLowerCase().includes(query) ||
-                 item.data.id.toLowerCase().includes(query) ||
-                 (item.data.waybillNumber && item.data.waybillNumber.toLowerCase().includes(query));
+            item.data.id.toLowerCase().includes(query) ||
+            (item.data.waybillNumber && item.data.waybillNumber.toLowerCase().includes(query));
         }
       });
     }
 
     // Sort
     filtered.sort((a, b) => {
-      const getDate = (item: UnifiedItem) => 
+      const getDate = (item: UnifiedItem) =>
         item.type === 'payment-link' ? item.data.createdAt : item.data.createdAt;
       const getName = (item: UnifiedItem) => item.data.itemName;
       const getAmount = (item: UnifiedItem) => {
         if (item.type === 'payment-link') {
           const total = item.data.price + item.data.shippingCost;
           const fee = total * 0.03;
-          return item.data.feeSplit === 'buyer' 
-            ? total + fee 
-            : item.data.feeSplit === 'seller' 
-            ? total 
-            : total + fee / 2;
+          return item.data.feeSplit === 'buyer'
+            ? total + fee
+            : item.data.feeSplit === 'seller'
+              ? total
+              : total + fee / 2;
         }
         return item.data.totalAmount;
       };
@@ -233,7 +237,7 @@ export default function SalesPage() {
   const renderItem = (item: UnifiedItem) => {
     if (item.type === 'payment-link') {
       const link = item.data;
-      const fullLink = typeof window !== 'undefined' 
+      const fullLink = typeof window !== 'undefined'
         ? `${window.location.origin}/pay/${link.id}`
         : `/pay/${link.id}`;
       const totalAmount = link.price + link.shippingCost;
@@ -242,8 +246,8 @@ export default function SalesPage() {
         link.feeSplit === 'buyer'
           ? totalAmount + feeAmount
           : link.feeSplit === 'seller'
-          ? totalAmount
-          : totalAmount + feeAmount / 2;
+            ? totalAmount
+            : totalAmount + feeAmount / 2;
 
       return (
         <div
@@ -351,9 +355,10 @@ export default function SalesPage() {
       );
     } else {
       const txn = item.data;
-      const Icon = stageIcons[txn.stage];
-      const colorClass = stageColors[txn.stage];
-      const label = stageLabels[txn.stage];
+      const stage = txn.stage as TransactionStage;
+      const Icon = stageIcons[stage];
+      const colorClass = stageColors[stage];
+      const label = stageLabels[stage];
 
       return (
         <Link
@@ -604,11 +609,10 @@ export default function SalesPage() {
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`px-4 py-2 rounded-lg transition-colors ${
-                        currentPage === page
+                      className={`px-4 py-2 rounded-lg transition-colors ${currentPage === page
                           ? 'bg-purple-600 text-white'
                           : 'border border-gray-300 hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       {page}
                     </button>
